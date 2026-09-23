@@ -1,0 +1,49 @@
+<svg width="900" height="220" viewBox="0 0 900 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="doc" x1="55" y1="35" x2="185" y2="185" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2AA8FF"/>
+      <stop offset="1" stop-color="#1557F5"/>
+    </linearGradient>
+    <linearGradient id="back" x1="20" y1="65" x2="115" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B9C8FF"/>
+      <stop offset="1" stop-color="#7D8FEA"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="130" y1="135" x2="205" y2="205" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F9FF"/>
+      <stop offset="1" stop-color="#D9E7FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <!-- Icon -->
+  <g filter="url(#shadow)">
+    <path d="M39 63C39 48 51 36 66 36H132L166 70V171C166 186 154 198 139 198H66C51 198 39 186 39 171V63Z"
+          fill="url(#back)" opacity="0.75"/>
+    <path d="M58 47C58 32 70 20 85 20H151L187 56V157C187 172 175 184 160 184H85C70 184 58 172 58 157V47Z"
+          fill="url(#doc)"/>
+    <path d="M151 20V53C151 61 157 67 165 67H187L151 20Z" fill="#CBE0FF" opacity="0.95"/>
+
+    <!-- Document lines -->
+    <rect x="82" y="82" width="66" height="9" rx="4.5" fill="white" opacity="0.9"/>
+    <rect x="82" y="105" width="82" height="9" rx="4.5" fill="white" opacity="0.9"/>
+    <rect x="82" y="128" width="52" height="9" rx="4.5" fill="white" opacity="0.9"/>
+
+    <!-- Collaboration badge -->
+    <circle cx="174" cy="164" r="38" fill="url(#badge)" stroke="white" stroke-width="5"/>
+    <circle cx="164" cy="153" r="8" fill="#1557F5"/>
+    <path d="M148 178C148 168.6 155.2 161 164 161C172.8 161 180 168.6 180 178V180H148V178Z" fill="#1557F5"/>
+    <circle cx="184" cy="157" r="6" fill="#8EA6EA"/>
+    <path d="M174 179C174 171.3 179.2 165 185.5 165C191.8 165 197 171.3 197 179V180H174V179Z" fill="#8EA6EA"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="245" y="139"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="86"
+        font-weight="700"
+        letter-spacing="-4">
+    <tspan fill="#111827">Sync</tspan><tspan fill="#1769F5">Docs</tspan>
+  </text>
+</svg>
