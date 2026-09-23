@@ -7,10 +7,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   return (
     <>
-      <ClerkProvider>
-        {children}
-        
-      </ClerkProvider>
+      <ClerkProvider>{children}</ClerkProvider>
     </>
   );
 };

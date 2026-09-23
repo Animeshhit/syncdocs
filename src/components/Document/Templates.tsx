@@ -10,9 +10,27 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useState } from "react";
 
 export default function TemplatesComponent() {
   const router = useRouter();
+
+  const [isCreating, setCreating] = useState(false);
+
+  const create = useMutation(api.document.create);
+
+  const onTemplateClick = (title: string, initialContent: string) => {
+    setCreating(true);
+    create({ title, initialContent })
+      .then((documentId) => {
+        router.push(`/document/${documentId}`);
+      })
+      .finally(() => {
+        setCreating(false);
+      });
+  };
 
   return (
     <div className="bg-blue-200 py-6">
@@ -25,8 +43,9 @@ export default function TemplatesComponent() {
                 className="basis-1/3 pl-0.5 sm:basis-1/4 sm:pl-1 md:basis-1/5 lg:basis-1/6 lg:pl-1.5 xl:basis-[14.2857%]"
               >
                 <button
+                  disabled={isCreating}
                   type="button"
-                  onClick={() => router.push(`/document/${t.name}`)}
+                  onClick={() => onTemplateClick(t.name, t.initialContent)}
                   className="w-full flex flex-col gap-2 aspect-square cursor-pointer rounded-md transition-transform hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   <Image
