@@ -1,3 +1,5 @@
+"use client";
+
 import { templates, type TemplateType } from "@/lib/templates";
 import {
   Carousel,
@@ -6,21 +8,27 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function TemplatesComponent() {
+  const router = useRouter();
+
   return (
-    <div className="bg-blue-200 py-3">
+    <div className="bg-blue-200 py-6">
       <div className="container mx-auto px-6">
         <Carousel className="w-full">
-          <CarouselContent className="-ml-1">
+          <CarouselContent className="-ml-0.5 sm:-ml-1 lg:-ml-1.5">
             {templates.map((t: TemplateType, index: number) => (
               <CarouselItem
-                key={index}
-                className="basis-1/3 pl-3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/7"
+                key={`${t.name}-${index}`}
+                className="basis-1/3 pl-0.5 sm:basis-1/4 sm:pl-1 md:basis-1/5 lg:basis-1/6 lg:pl-1.5 xl:basis-[14.2857%]"
               >
-                <div className="w-full flex flex-col gap-2 aspect-square">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/document/${t.name}`)}
+                  className="w-full flex flex-col gap-2 aspect-square cursor-pointer rounded-md transition-transform hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                >
                   <Image
                     className="object-cover"
                     src={t.thumbnail}
@@ -28,13 +36,18 @@ export default function TemplatesComponent() {
                     width={150}
                     height={80}
                   />
-                  <span className="">{t.name}</span>
-                </div>
+                  <span className="text-xs sm:text-sm md:text-base">
+                    {t.name}
+                  </span>
+                </button>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+
+          <div className="flex justify-end gap-2 mt-3">
+            <CarouselPrevious className="static translate-y-0" />
+            <CarouselNext className="static translate-y-0" />
+          </div>
         </Carousel>
       </div>
     </div>

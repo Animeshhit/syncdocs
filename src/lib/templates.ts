@@ -30,4 +30,14 @@ export const templates: TemplateType[] = [
     initialContent: "",
     thumbnail: "/Brochure.png",
   },
+  {
+    name: "Recipe",
+    initialContent: "",
+    thumbnail: "/recipe.png",
+  },
+  {
+    name: "Newsletter",
+    initialContent: "",
+    thumbnail: "/newsletter.png",
+  },
 ];
