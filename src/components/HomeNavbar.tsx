@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,8 +17,15 @@ const HomeNavbar = () => {
             />
           </div>
         </Link>
-
-        <UserButton />
+        <div className="flex items-center gap-3">
+          <OrganizationSwitcher
+            afterLeaveOrganizationUrl="/"
+            afterSelectOrganizationUrl="/"
+            afterSelectPersonalUrl="/"
+            afterCreateOrganizationUrl="/"
+          />
+          <UserButton />
+        </div>
       </div>
     </header>
   );

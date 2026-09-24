@@ -2,12 +2,33 @@ import { paginationOptsValidator } from "convex/server";
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
+const getStringId = (value: unknown): string | undefined => {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  return String(value);
+};
+
 export const get = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
 
-    if (!user) return null;
+    if (!user) {
+      throw new ConvexError("unauthorized");
+    }
+
+    const orgId =
+      typeof user.o === "object" && user.o !== null && "id" in user.o
+        ? getStringId((user.o as { id?: unknown }).id)
+        : undefined;
+
+    if (orgId) {
+      return await ctx.db
+        .query("documents")
+        .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
+        .paginate(args.paginationOpts);
+    }
     return await ctx.db
       .query("documents")
       .withIndex("by_owner_id", (q) => q.eq("ownerId", user.subject))
@@ -27,9 +48,15 @@ export const create = mutation({
       throw new ConvexError("unauthorized");
     }
 
+    const orgId =
+      (typeof user.o === "object" && user.o !== null && "id" in user.o
+        ? getStringId((user.o as { id?: unknown }).id)
+        : undefined) ?? getStringId(user.org_id);
+
     return await ctx.db.insert("documents", {
       title: args.title ?? "Untitled document",
       ownerId: user.subject,
+      organizationId: orgId,
       initialContent: args.initialContent,
     });
   },
@@ -63,5 +90,5 @@ export const updateById = mutation({
       return new ConvexError("Document not found");
     }
     return ctx.db.patch("documents", args.id, { title: args.title });
-  }
+  },
 });

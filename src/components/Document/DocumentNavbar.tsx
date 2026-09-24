@@ -1,21 +1,27 @@
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
 import DocumentFileNameSetter from "./DocumentFileNameSetter";
-import { ThemeToggle } from "../tiptap-templates/simple/theme-toggle";
-
+import { AvatarRtl } from "./Avatar";
 
 interface DocumentNavbarProps {
-    documentId: string;
+  documentId: string;
 }
 
-function DocumentNavbar({documentId}:DocumentNavbarProps) {
+function DocumentNavbar({ documentId }: DocumentNavbarProps) {
   return (
-    <header className="print:hidden">
+    <header className="print:hidden bg-blue-200">
       <div className="w-full container mx-auto py-2 px-4">
         <div className="flex items-center justify-between">
-          <DocumentFileNameSetter documentId={documentId}/>
+          <DocumentFileNameSetter documentId={documentId} />
+          
           <div className="flex items-center gap-2">
+            <AvatarRtl/>
+            <OrganizationSwitcher
+              afterLeaveOrganizationUrl="/"
+              afterSelectOrganizationUrl="/"
+              afterSelectPersonalUrl="/"
+              afterCreateOrganizationUrl="/"
+            />
             <UserButton />
-            <ThemeToggle />
           </div>
         </div>
       </div>

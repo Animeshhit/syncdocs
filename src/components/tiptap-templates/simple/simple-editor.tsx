@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor, EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { useQuery } from "convex/react";
+import { useParams } from "next/navigation";
+import { api } from "@/../convex/_generated/api";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -13,7 +16,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { FindAndReplace } from "@tiptap/extension-find-and-replace";
-import { Selection, UndoRedo } from "@tiptap/extensions";
+import { Selection } from "@tiptap/extensions";
 import {
   FloatingComposer,
   FloatingToolbar,
@@ -211,6 +214,13 @@ const MobileToolbarContent = ({
 );
 
 export function SimpleEditor() {
+  const params = useParams();
+  const documentId = params.documentId as string | undefined;
+  const document = useQuery(
+    api.document.getById,
+    documentId ? { id: documentId as any } : "skip",
+  );
+
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -243,7 +253,6 @@ export function SimpleEditor() {
           enableClickSelection: true,
         },
       }),
-      UndoRedo,
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
@@ -278,6 +287,17 @@ export function SimpleEditor() {
       setMobileView("main");
     }
   }, [isMobile, mobileView]);
+
+  useEffect(() => {
+    if (!editor || !document?.initialContent) {
+      return;
+    }
+
+    const current = editor.getHTML();
+    if (!current || current === "<p></p>") {
+      editor.commands.setContent(document.initialContent, { emitUpdate: false });
+    }
+  }, [editor, document?.initialContent]);
 
   const openSearchAndReplace = useCallback(() => {
     setMobileView("main");

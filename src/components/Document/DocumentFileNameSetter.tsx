@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { CloudSync } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 interface DocumentNavbarFileNameSetter {
@@ -14,12 +14,12 @@ interface DocumentNavbarFileNameSetter {
 
 function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
   const document = useQuery(api.document.getById, { id: documentId as any });
+  const updateName = useMutation(api.document.updateById);
 
   const [fileName, setFileName] = useState("Loading...");
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // sync local state once the query resolves (and whenever the title changes elsewhere)
   useEffect(() => {
     if (document === undefined) return; // still loading
     setFileName(document?.title ?? "Untitled Document");
@@ -35,7 +35,7 @@ function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
     if (fileName.trim() === "") {
       setFileName("Untitled Document");
     }
-    // TODO: call your rename mutation here to persist fileName
+    updateName({id:documentId as any,title:fileName.trim()});
   };
 
   return (
@@ -56,7 +56,7 @@ function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
         onFocus={handleActivate}
         onBlur={handleBlur}
         readOnly={!isEditing}
-        className="border-none placeholder:text-zinc-500 dark:placeholder:text-gray-300"
+        className="border-none placeholder:text-zinc-500 text-lg dark:placeholder:text-gray-300"
       />
       <Button variant="ghost" className="cursor-pointer">
         <CloudSync width={20} height={20} />
