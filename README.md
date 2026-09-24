@@ -32,14 +32,14 @@ SyncDocs is a collaborative document workspace built for teams and individuals t
 ## Screenshots
 
 
- ![Home screenshot](./docs/screenshots/ss1.png) 
- ![Editor screenshot](./docs/screenshots/ss2.png) 
- ![Collaboration screenshot](./docs/screenshots/ss3.png)
- ![Collaboration screenshot](./docs/screenshots/ss4.png)
- ![Collaboration screenshot](./docs/screenshots/ss5.png)
- ![Collaboration screenshot](./docs/screenshots/ss6.png)
- ![Collaboration screenshot](./docs/screenshots/ss7.png)
- ![Collaboration screenshot](./docs/screenshots/ss8.png)
+ ![Home screenshot](./public/screenshots/ss1.png) 
+ ![Editor screenshot](./public/screenshots/ss2.png) 
+ ![Collaboration screenshot](./public/screenshots/ss3.png)
+ ![Collaboration screenshot](./public/screenshots/ss4.png)
+ ![Collaboration screenshot](./public/screenshots/ss5.png)
+ ![Collaboration screenshot](./public/screenshots/ss6.png)
+ ![Collaboration screenshot](./public/screenshots/ss7.png)
+ ![Collaboration screenshot](./public/screenshots/ss8.png)
 
 
 ## Live View
