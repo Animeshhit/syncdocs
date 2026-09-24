@@ -4,14 +4,19 @@
 import {auth,clerkClient} from "@clerk/nextjs/server";
 
 export async function getUsers() {
-    const {sessionClaims} = await auth();
-    const clerk = await clerkClient();
+  const { sessionClaims } = await auth();
+  const clerk = await clerkClient();
 
+  const org =
+    sessionClaims && typeof sessionClaims === "object" && "o" in sessionClaims
+      ? (sessionClaims.o as { id?: string } | undefined)
+      : undefined;
 
+  const orgId = org?.id;
 
-    const res = await clerk.users.getUserList({
-        organizationId:[sessionClaims?.o?.id as string]
-    })
+  const res = await clerk.users.getUserList({
+    organizationId: orgId ? [orgId] : [],
+  });
     
 
     const users = res.data.map(u => ({
