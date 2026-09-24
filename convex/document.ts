@@ -1,10 +1,16 @@
+import { paginationOptsValidator } from "convex/server";
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
 export const get = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db.query("documents").collect();
+  args: {paginationOpts:paginationOptsValidator},
+  handler: async (ctx,args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if(!user) return null;
+    return await ctx.db.query("documents")
+    .withIndex("by_owner_id",(q) => q.eq("ownerId",user.subject))
+    .paginate(args.paginationOpts);
   },
 });
 
@@ -26,4 +32,15 @@ export const create = mutation({
         initialContent:args.initialContent
       })
     }
+})
+
+export const getById = query({
+  args:{id:v.id("documents")},
+  handler:async (ctx,{id}) => {
+      const document = ctx.db.get(id);
+
+    
+
+      return document;
+  }
 })

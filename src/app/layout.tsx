@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
-import  ConvexClientProvider from "@/components/CovexClientProvider";
+import ConvexClientProvider from "@/components/CovexClientProvider";
+import "@liveblocks/react-ui/styles.css";
+
+import "@liveblocks/react-tiptap/styles.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+            <ConvexClientProvider>{children}</ConvexClientProvider>
         </AuthProvider>
       </body>
     </html>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +18,8 @@ import {
   Trash2,
   ExternalLink,
   FileText,
+  CircleUserRound,
+  BuildingComplex,
 } from "lucide-react";
 
 type DocType = {
@@ -31,14 +33,16 @@ type DocType = {
 const GRID = "grid-cols-[1fr_2rem] sm:grid-cols-[1fr_7rem_8rem_2rem]";
 
 function Documents() {
-  const docs = useQuery(api.document.get) as DocType[] | undefined;
+  const {results,status,loadMore} = usePaginatedQuery(api.document.get as any, {
 
+  },{initialNumItems:5});
   const handleRename = (id: string) => console.log("rename", id);
   const handleDelete = (id: string) => console.log("delete", id);
   const handleOpenInNewTab = (id: string) =>
     window.open(`/document/${id}`, "_blank");
 
-  const isLoading = docs === undefined;
+  const isLoading = results === undefined;
+  const noDocumentsFound = results && results.length == 0;
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -71,14 +75,14 @@ function Documents() {
               </div>
             ))}
 
-          {!isLoading && docs.length === 0 && (
+          {!isLoading && noDocumentsFound && (
             <div className="px-4 py-10 text-center text-sm text-muted-foreground">
               No documents found.
             </div>
           )}
 
           {!isLoading &&
-            docs.map((doc) => {
+            results.map((doc) => {
               const isOrganization = !!doc.organizationId;
 
               return (

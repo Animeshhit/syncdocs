@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@import "../styles/_variables.scss";
+@import "../styles/_keyframe-animations.scss";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -117,6 +120,29 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-body{
-  background-color:rgb(234, 234, 234);
+body {
+  background-color: rgb(234, 234, 234);
+}
+
+
+.floating-threads {
+  display: none;
+}
+
+.anchored-threads {
+  display: block;
+  max-width: 300px;
+  width: 100%;
+  position: absolute;
+  right: 12px;
+}
+
+@media (max-width: 640px) {
+  .floating-threads {
+    display: block;
+  }
+
+  .anchored-threads {
+    display: none;
+  }
 }

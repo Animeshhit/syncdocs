@@ -1,4 +1,6 @@
+import DocumentNavbar from "@/components/Document/DocumentNavbar";
 import { Editor } from "../../../components/Document/Editor";
+import { Room } from "@/app/document/[documentId]/Room";
 
 interface DocumentProps {
     params: Promise<{documentId:string}>
@@ -12,7 +14,10 @@ const Document =  async ({params}:DocumentProps) => {
 
     return (
         <>
+        <Room>
+        <DocumentNavbar/>
         <Editor/>
+        </Room>
         </>
     )
 }
