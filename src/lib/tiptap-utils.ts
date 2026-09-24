@@ -13,6 +13,7 @@ import {
   type Editor,
   type NodeWithPos,
 } from "@tiptap/react"
+import { getUploadSignature } from "@/app/actions/uploadImageToCloud";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -370,34 +371,130 @@ export function selectionWithinConvertibleTypes(
  * @param abortSignal Optional AbortSignal for cancelling the upload
  * @returns Promise resolving to the URL of the uploaded image
  */
+
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+export class UploadError extends Error {
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = "UploadError";
+  }
+}
+
 export const handleImageUpload = async (
   file: File,
   onProgress?: (event: { progress: number }) => void,
   abortSignal?: AbortSignal
 ): Promise<string> => {
-  // Validate file
-  if (!file) {
-    throw new Error("No file provided")
-  }
+  // --- Validation -----------------------------------------------------
+  if (!file) throw new UploadError("No file provided");
+
+  if (file.size === 0) throw new UploadError("File is empty");
 
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error(
+    throw new UploadError(
       `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`
-    )
+    );
   }
 
-  // For demo/testing: Simulate upload progress. In production, replace the following code
-  // with your own upload implementation.
-  for (let progress = 0; progress <= 100; progress += 10) {
-    if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new UploadError(
+      `Unsupported file type "${file.type || "unknown"}". Allowed: ${ALLOWED_TYPES.join(", ")}`
+    );
   }
 
-  return "/images/tiptap-ui-placeholder-image.jpg"
-}
+  if (abortSignal?.aborted) {
+    throw new UploadError("Upload cancelled");
+  }
+
+  // --- Get signed params from the server (secret never leaves server) -
+  let signatureData;
+  try {
+    signatureData = await getUploadSignature();
+  } catch (err) {
+    throw new UploadError("Failed to initialize upload", err);
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder } = signatureData;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+  formData.append("folder", folder);
+
+  // --- Upload directly to Cloudinary via XHR (fetch has no progress) --
+  return new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+    xhr.open("POST", url);
+
+    // Wire abort signal -> real network cancellation
+    const onAbort = () => {
+      xhr.abort();
+    };
+    abortSignal?.addEventListener("abort", onAbort);
+
+    const cleanup = () => {
+      abortSignal?.removeEventListener("abort", onAbort);
+    };
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const progress = Math.round((e.loaded / e.total) * 100);
+        onProgress?.({ progress });
+      }
+    };
+
+    xhr.onload = () => {
+      cleanup();
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          if (!response.secure_url) {
+            reject(new UploadError("Upload succeeded but no URL was returned"));
+            return;
+          }
+          onProgress?.({ progress: 100 });
+          resolve(response.secure_url as string);
+        } catch (err) {
+          reject(new UploadError("Failed to parse Cloudinary response", err));
+        }
+      } else {
+        let message = `Upload failed with status ${xhr.status}`;
+        try {
+          const errBody = JSON.parse(xhr.responseText);
+          if (errBody?.error?.message) message = errBody.error.message;
+        } catch {
+          // response wasn't JSON — keep the generic message
+        }
+        reject(new UploadError(message));
+      }
+    };
+
+    xhr.onerror = () => {
+      cleanup();
+      reject(new UploadError("Network error during upload"));
+    };
+
+    xhr.onabort = () => {
+      cleanup();
+      reject(new UploadError("Upload cancelled"));
+    };
+
+    xhr.ontimeout = () => {
+      cleanup();
+      reject(new UploadError("Upload timed out"));
+    };
+
+    xhr.timeout = 60_000; // 60s — adjust for expected file sizes/connection speeds
+
+    xhr.send(formData);
+  });
+};
 
 type ProtocolOptions = {
   /**
