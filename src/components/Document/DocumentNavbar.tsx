@@ -9,12 +9,14 @@ interface DocumentNavbarProps {
 function DocumentNavbar({ documentId }: DocumentNavbarProps) {
   return (
     <header className="print:hidden bg-blue-200">
-      <div className="w-full container mx-auto py-2 px-4">
-        <div className="flex items-center justify-between">
-          <DocumentFileNameSetter documentId={documentId} />
-          
-          <div className="flex items-center gap-2">
-            <AvatarRtl/>
+      <div className="container mx-auto w-full px-3 py-2 sm:px-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <DocumentFileNameSetter documentId={documentId} />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 self-end sm:self-auto">
+            <AvatarRtl />
             <OrganizationSwitcher
               afterLeaveOrganizationUrl="/"
               afterSelectOrganizationUrl="/"

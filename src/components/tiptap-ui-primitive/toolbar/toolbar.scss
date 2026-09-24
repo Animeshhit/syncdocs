@@ -14,11 +14,22 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   &-group {
     display: flex;
     align-items: center;
     gap: 0.125rem;
+    flex: 0 0 auto;
 
     &:empty {
       display: none;
@@ -45,8 +56,10 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    &::-webkit-scrollbar {
-      display: none;
+    @media (max-width: 768px) {
+      padding-inline: 0.25rem;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
     }
 
     @media (max-width: 480px) {

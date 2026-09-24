@@ -3,9 +3,10 @@ import Image from "next/image";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { CloudSync } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
+// import type { Id } from "convex/server";
 import { api } from "../../../convex/_generated/api";
 
 interface DocumentNavbarFileNameSetter {
@@ -13,17 +14,14 @@ interface DocumentNavbarFileNameSetter {
 }
 
 function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
-  const document = useQuery(api.document.getById, { id: documentId as any });
+  const document = useQuery(api.document.getById, {
+    id: documentId as any,
+  });
   const updateName = useMutation(api.document.updateById);
 
-  const [fileName, setFileName] = useState("Loading...");
+  const [fileName, setFileName] = useState(() => document?.title ?? "Untitled Document");
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (document === undefined) return; // still loading
-    setFileName(document?.title ?? "Untitled Document");
-  }, [document]);
 
   const handleActivate = () => {
     setIsEditing(true);
@@ -32,15 +30,16 @@ function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
 
   const handleBlur = () => {
     setIsEditing(false);
-    if (fileName.trim() === "") {
-      setFileName("Untitled Document");
-    }
-    updateName({id:documentId as any,title:fileName.trim()});
+    const nextTitle = fileName.trim() || "Untitled Document";
+    setFileName(nextTitle);
+    updateName({ id: documentId as any, title: nextTitle });
   };
 
+  const inputValue = isEditing ? fileName : document?.title ?? fileName;
+
   return (
-    <div className="flex items-center gap-2">
-      <Link href="/">
+    <div className="flex min-w-0 items-center gap-2">
+      <Link href="/" className="shrink-0">
         <Image
           src="/icon-removebg-preview.png"
           alt="syncdocs"
@@ -50,15 +49,15 @@ function DocumentFileNameSetter({ documentId }: DocumentNavbarFileNameSetter) {
       </Link>
       <Input
         ref={inputRef}
-        value={fileName}
+        value={inputValue}
         onChange={(e) => setFileName(e.target.value)}
         onClick={handleActivate}
         onFocus={handleActivate}
         onBlur={handleBlur}
         readOnly={!isEditing}
-        className="border-none placeholder:text-zinc-500 text-lg dark:placeholder:text-gray-300"
+        className="min-w-0 flex-1 border-none text-base placeholder:text-zinc-500 sm:text-lg dark:placeholder:text-gray-300"
       />
-      <Button variant="ghost" className="cursor-pointer">
+      <Button variant="ghost" className="shrink-0 cursor-pointer">
         <CloudSync width={20} height={20} />
       </Button>
     </div>
