@@ -1,10 +1,11 @@
 "use client";
 
-import { usePaginatedQuery, useQuery } from "convex/react";
+import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +19,6 @@ import {
   Trash2,
   ExternalLink,
   FileText,
-  CircleUserRound,
-  BuildingComplex,
 } from "lucide-react";
 
 type DocType = {
@@ -33,11 +32,43 @@ type DocType = {
 const GRID = "grid-cols-[1fr_2rem] sm:grid-cols-[1fr_7rem_8rem_2rem]";
 
 function Documents() {
-  const {results,status,loadMore} = usePaginatedQuery(api.document.get as any, {
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.document.get as any,
+    {},
+    { initialNumItems: 5 }
+  );
+  const deleteItem = useMutation(api.document.deleteById);
+  const renameItem = useMutation(api.document.updateById);
+  // const renameItem = useMutation(api.document.rename); // <- hook up your mutation here
 
-  },{initialNumItems:5});
-  const handleRename = (id: string) => console.log("rename", id);
-  const handleDelete = (id: string) => console.log("delete", id);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startRename = (doc: DocType) => {
+    setEditingId(doc._id);
+    setEditValue(doc.title);
+    // wait a tick so the input exists, then focus + select all text
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const saveRename = (id: string) => {
+    const trimmed = editValue.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    renameItem({id:id as any,title:trimmed});
+  };
+
+  const cancelRename = () => {
+    setEditingId(null);
+  };
+
+  const handleDelete = (id: any) => {
+    deleteItem({ id });
+  };
   const handleOpenInNewTab = (id: string) =>
     window.open(`/document/${id}`, "_blank");
 
@@ -84,16 +115,46 @@ function Documents() {
           {!isLoading &&
             results.map((doc) => {
               const isOrganization = !!doc.organizationId;
+              const isEditing = editingId === doc._id;
 
               return (
                 <Link
                   href={`/document/${doc._id}`}
                   key={doc._id}
+                  onClick={(e) => {
+                    if (isEditing) e.preventDefault(); // don't navigate while editing
+                  }}
                   className={`group cursor-pointer hover:bg-gray-300 grid ${GRID} items-center gap-4 px-4 py-3 hover:bg-accent/50 transition-colors`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <FileText className="text-gray-400" />
-                    <span className="block truncate text-sm">{doc.title}</span>
+                    <FileText className="text-gray-400 shrink-0" />
+                    {isEditing ? (
+                      <input
+                        ref={inputRef}
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            saveRename(doc._id);
+                          } else if (e.key === "Escape") {
+                            e.preventDefault();
+                            cancelRename();
+                          }
+                        }}
+                        onBlur={() => saveRename(doc._id)}
+                        className="w-full bg-background border border-input rounded px-1.5 py-0.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    ) : (
+                      <span className="block truncate text-sm">
+                        {doc.title}
+                      </span>
+                    )}
                   </div>
 
                   <div className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -107,7 +168,13 @@ function Documents() {
                     {format(doc._creationTime, "MMM d, yyyy")}
                   </div>
 
-                  <div className="justify-self-end">
+                  <div
+                    className="justify-self-end"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
                     <DropdownMenu>
                       <DropdownMenuTrigger className="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-accent hover:text-foreground transition-all focus:opacity-100 data-[state=open]:opacity-100">
                         <MoreVertical className="h-4 w-4" />
@@ -115,20 +182,29 @@ function Documents() {
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
                           className="cursor-pointer py-2"
-                          onClick={() => handleRename(doc._id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            startRename(doc);
+                          }}
                         >
                           <Pencil className="h-4 w-4 mr-2" />
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer py-2"
-                          onClick={() => handleOpenInNewTab(doc._id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenInNewTab(doc._id);
+                          }}
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Open in new tab
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleDelete(doc._id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDelete(doc._id);
+                          }}
                           className="text-destructive py-2 cursor-pointer hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />

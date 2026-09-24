@@ -15,7 +15,7 @@ const Document =  async ({params}:DocumentProps) => {
     return (
         <>
         <Room>
-        <DocumentNavbar/>
+        <DocumentNavbar documentId={documentId}/>
         <Editor/>
         </Room>
         </>

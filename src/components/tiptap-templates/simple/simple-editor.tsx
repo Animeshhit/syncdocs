@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { Editor, EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -19,6 +19,7 @@ import {
   FloatingToolbar,
   useLiveblocksExtension,
 } from "@liveblocks/react-tiptap";
+import { Toolbar as ToolbarLiveBlocks } from "@liveblocks/react-tiptap";
 
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button";
@@ -58,7 +59,7 @@ import {
 } from "@/components/tiptap-ui/link-popover";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
-import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button";
+import { HistoryShortcutBadge, UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button";
 import {
   SearchAndReplace,
   SearchAndReplaceButton,
@@ -82,6 +83,7 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 import { Threads } from "@/app/document/[documentId]/Threads";
 
+
 const SEARCH_AND_REPLACE_SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: "center",
 };
@@ -93,6 +95,7 @@ const MainToolbarContent = ({
   isSearchAndReplaceOpen,
   searchAndReplaceButtonRef,
   isMobile,
+  editor
 }: {
   onHighlighterClick: () => void;
   onLinkClick: () => void;
@@ -100,14 +103,18 @@ const MainToolbarContent = ({
   isSearchAndReplaceOpen: boolean;
   searchAndReplaceButtonRef: React.RefObject<HTMLButtonElement | null>;
   isMobile: boolean;
+  editor:Editor
 }) => {
   return (
     <div className="flex print:hidden items-center justify-center w-full">
       <Spacer />
 
       <ToolbarGroup>
-        <UndoRedoButton action="undo" />
-        <UndoRedoButton action="redo" />
+        {editor && 
+        <ToolbarLiveBlocks editor={editor}>
+          <ToolbarLiveBlocks.SectionHistory />
+        </ToolbarLiveBlocks>
+        }
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -305,6 +312,7 @@ export function SimpleEditor() {
         >
           {mobileView === "main" ? (
             <MainToolbarContent
+              editor={editor as Editor}
               onHighlighterClick={() => setMobileView("highlighter")}
               onLinkClick={() => setMobileView("link")}
               onSearchAndReplaceClick={toggleSearchAndReplace}
