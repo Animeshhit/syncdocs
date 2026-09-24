@@ -31,17 +31,16 @@ SyncDocs is a collaborative document workspace built for teams and individuals t
 
 ## Screenshots
 
-> Add your screenshots below. Drop image files into a `public/screenshots` (or `docs/screenshots`) folder and reference them here.
 
-| Home / Document List | Editor View | Real-time Collaboration |
-|---|---|---|
-| ![Home screenshot](./docs/screenshots/home.png) | ![Editor screenshot](./docs/screenshots/editor.png) | ![Collaboration screenshot](./docs/screenshots/collab.png) |
+ ![Home screenshot](./docs/screenshots/ss1.png) 
+ ![Editor screenshot](./docs/screenshots/ss2.png) 
+ ![Collaboration screenshot](./docs/screenshots/ss3.png)
+ ![Collaboration screenshot](./docs/screenshots/ss4.png)
+ ![Collaboration screenshot](./docs/screenshots/ss5.png)
+ ![Collaboration screenshot](./docs/screenshots/ss6.png)
+ ![Collaboration screenshot](./docs/screenshots/ss7.png)
+ ![Collaboration screenshot](./docs/screenshots/ss8.png)
 
-To add a new screenshot:
-1. Take the screenshot and save it as a `.png` or `.jpg`.
-2. Place it inside `docs/screenshots/` (create the folder if it doesn't exist).
-3. Reference it in this README using `![Alt text](./docs/screenshots/your-file.png)`.
-4. Commit the image along with your changes — GitHub renders these inline automatically.
 
 ## Live View
 - Live App: https://syncdocs-ruddy.vercel.app/
