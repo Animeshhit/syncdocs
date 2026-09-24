@@ -15,7 +15,7 @@ export async function getUsers() {
     
 
     const users = res.data.map(u => ({
-        id:u.id,
+        id:u?.id,
         name:u.fullName ?? u.primaryEmailAddress?.emailAddress ?? "Anonymous",
         avatar:u.imageUrl
     }))
