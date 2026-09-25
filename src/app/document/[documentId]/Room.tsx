@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import {
   LiveblocksProvider,
   RoomProvider,
@@ -17,42 +17,46 @@ export function Room({ children }: { children: ReactNode }) {
     { id: string; name: string; avatar: string }[]
   >([]);
 
-  const fetchUsers = useMemo(
-    () => async () => {
-      try {
-        const list = await getUsers();
-        console.log(list);
-        setUsers(list);
-      } catch (err) {
-        alert("failed to fetch users");
-      }
-    },
-    [],
-  );
+  const fetchUsers = useCallback(async () => {
+    try {
+      const list = await getUsers();
+      setUsers(list);
+    } catch (err) {
+      console.error("failed to fetch users", err);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchUsers();
-  },[fetchUsers]);
+    void fetchUsers();
+  }, [fetchUsers]);
+
+  const resolveUsers = useCallback(
+    ({ userIds }: { userIds: string[] }) =>
+      userIds.map(
+        (userId) => users.find((user) => user.id === userId) ?? undefined,
+      ),
+    [users],
+  );
+
+  const resolveMentionSuggestions = useCallback(
+    ({ text }: { text: string }) => {
+      const filteredUsers = text
+        ? users.filter((user) =>
+            user.name.toLowerCase().includes(text.toLowerCase()),
+          )
+        : users;
+
+      return filteredUsers.map((user) => user.id);
+    },
+    [users],
+  );
 
   return (
     <LiveblocksProvider
       authEndpoint="/api/liveblocks-auth"
       throttle={16}
-      resolveUsers={({userIds}) => {
-        return userIds.map(
-          (userId) => users.find((user) => user.id === userId) ?? undefined
-        )
-      }}
-      resolveMentionSuggestions={({text}) => {
-        let filteredUsers = users;
-        if(text){
-          filteredUsers = users.filter((user) => 
-            user.name.toLocaleLowerCase().includes(text.toLocaleLowerCase())
-          )
-        }
-
-        return filteredUsers.map((user) => user.id);
-      }}
+      resolveUsers={resolveUsers}
+      resolveMentionSuggestions={resolveMentionSuggestions}
     >
       <RoomProvider id={params.documentId as string}>
         <ClientSideSuspense fallback={<FullScreenLoading />}>
