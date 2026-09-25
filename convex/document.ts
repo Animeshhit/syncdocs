@@ -45,7 +45,7 @@ export const create = mutation({
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
-      throw new ConvexError("unauthorized");
+        throw new ConvexError("Unauthorized! You need to sign in. 🤔");
     }
 
     const orgId =

@@ -1,6 +1,7 @@
 import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
 import DocumentFileNameSetter from "./DocumentFileNameSetter";
 import { AvatarRtl } from "./Avatar";
+import { FileMenu } from "./FileMenu";
 
 interface DocumentNavbarProps {
   documentId: string;
@@ -8,8 +9,8 @@ interface DocumentNavbarProps {
 
 function DocumentNavbar({ documentId }: DocumentNavbarProps) {
   return (
-    <header className="print:hidden bg-blue-200">
-      <div className="container mx-auto w-full px-3 py-2 sm:px-4">
+    <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70 print:hidden">
+      <div className="mx-auto w-full max-w-7xl px-3 py-2 sm:px-4 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <DocumentFileNameSetter documentId={documentId} />
@@ -17,14 +18,20 @@ function DocumentNavbar({ documentId }: DocumentNavbarProps) {
 
           <div className="flex items-center justify-end gap-2 self-end sm:self-auto">
             <AvatarRtl />
-            <OrganizationSwitcher
-              afterLeaveOrganizationUrl="/"
-              afterSelectOrganizationUrl="/"
-              afterSelectPersonalUrl="/"
-              afterCreateOrganizationUrl="/"
-            />
+            <div className="hidden md:block">
+              <OrganizationSwitcher
+                afterLeaveOrganizationUrl="/"
+                afterSelectOrganizationUrl="/"
+                afterSelectPersonalUrl="/"
+                afterCreateOrganizationUrl="/"
+              />
+            </div>
             <UserButton />
           </div>
+        </div>
+
+        <div className="mt-1.5 flex items-center">
+          <FileMenu documentId={documentId} />
         </div>
       </div>
     </header>
