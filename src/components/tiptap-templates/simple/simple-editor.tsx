@@ -262,8 +262,7 @@ export default function SimpleEditor() {
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
-    ],
-    content,
+    ]
   });
 
   const rect = useCursorVisibility({
