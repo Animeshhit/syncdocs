@@ -5,7 +5,7 @@ import {
 } from "@liveblocks/react-tiptap";
 import { Editor } from "@tiptap/react";
 
-export function Threads({ editor }: { editor: Editor | null }) {
+export default function Threads({ editor }: { editor: Editor | null }) {
   const { threads } = useThreads({ query: { resolved: false } });
 
   return (

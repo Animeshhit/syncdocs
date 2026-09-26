@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
 import DocumentFileNameSetter from "./DocumentFileNameSetter";
 import { AvatarRtl } from "./Avatar";
@@ -8,8 +11,30 @@ interface DocumentNavbarProps {
 }
 
 function DocumentNavbar({ documentId }: DocumentNavbarProps) {
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const setHeight = () => {
+      document.documentElement.style.setProperty(
+        "--doc-navbar-height",
+        `${el.offsetHeight}px`
+      );
+    };
+
+    setHeight();
+    const observer = new ResizeObserver(setHeight);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70 print:hidden">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70 print:hidden"
+    >
       <div className="mx-auto w-full max-w-7xl px-3 py-2 sm:px-4 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">

@@ -9,6 +9,8 @@ import {
 import { useParams } from "next/navigation";
 import FullScreenLoading from "@/components/FullScreenLoading";
 import { getUsers } from "@/app/actions/userActions";
+import Header from "@/components/Header";
+import HomeHeader from "@/components/Home/HomeHeader";
 
 export function Room({ children }: { children: ReactNode }) {
   const params = useParams();
@@ -59,6 +61,9 @@ export function Room({ children }: { children: ReactNode }) {
       resolveMentionSuggestions={resolveMentionSuggestions}
     >
       <RoomProvider id={params.documentId as string}>
+         <Header>
+          <HomeHeader/> 
+        </Header>
         <ClientSideSuspense fallback={<FullScreenLoading />}>
           {children}
         </ClientSideSuspense>
