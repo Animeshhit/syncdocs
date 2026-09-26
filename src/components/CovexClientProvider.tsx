@@ -14,17 +14,7 @@ const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL)
 export default function ConvexClientProvider({ children }: { children: ReactNode }) {
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        {/* <Authenticated> */}
       {children}
-      {/* </Authenticated> */}
-      {/* <Unauthenticated>
-        <div className='h-screen flex items-center justify-center'>
-        <SignIn/>
-        </div>
-      </Unauthenticated>
-      <AuthLoading>
-        <FullScreenLoading/>
-      </AuthLoading> */}
     </ConvexProviderWithClerk>
   )
 }

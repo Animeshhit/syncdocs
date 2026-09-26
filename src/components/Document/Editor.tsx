@@ -1,5 +1,16 @@
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
+"use client";
+import dynamic from "next/dynamic";
+import FullScreenLoading from "../FullScreenLoading";
 
-export  function Editor() {
-  return <SimpleEditor />
+function Editor() {
+  const Editor = dynamic(() => import("../tiptap-templates/simple/simple-editor"),{
+    ssr:false,
+    loading:() => <FullScreenLoading label="Editr is getting Ready"/>
+  });
+  return (
+    <Editor/>
+  
+  )
 }
+
+export default Editor

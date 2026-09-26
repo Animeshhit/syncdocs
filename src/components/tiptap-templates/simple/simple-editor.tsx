@@ -1,10 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Editor, EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import { useQuery } from "convex/react";
-import { useParams } from "next/navigation";
-import { api } from "@/../convex/_generated/api";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -17,11 +14,6 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { FindAndReplace } from "@tiptap/extension-find-and-replace";
 import { Selection } from "@tiptap/extensions";
-import {
-  FloatingComposer,
-  FloatingToolbar,
-  useLiveblocksExtension,
-} from "@liveblocks/react-tiptap";
 
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button";
@@ -61,10 +53,7 @@ import {
 } from "@/components/tiptap-ui/link-popover";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
-import {
-  HistoryShortcutBadge,
-  UndoRedoButton,
-} from "@/components/tiptap-ui/undo-redo-button";
+import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button";
 import {
   SearchAndReplace,
   SearchAndReplaceButton,
@@ -80,13 +69,21 @@ import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 
+// --- Components ---
+
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
-import { Threads } from "@/app/document/[documentId]/Threads";
+import content from "@/components/tiptap-templates/simple/data/content.json";
+import {
+  FloatingToolbar,
+  useLiveblocksExtension,
+} from "@liveblocks/react-tiptap";
+import dynamic from "next/dynamic";
+
 
 const SEARCH_AND_REPLACE_SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: "center",
@@ -108,15 +105,12 @@ const MainToolbarContent = ({
   isMobile: boolean;
 }) => {
   return (
-    <div className="flex print:hidden items-center justify-center w-full">
+    <>
       <Spacer />
 
       <ToolbarGroup>
-       
-        <ToolbarGroup>
-          <UndoRedoButton action="undo" />
-          <UndoRedoButton action="redo" />
-        </ToolbarGroup>
+        <UndoRedoButton action="undo" />
+        <UndoRedoButton action="redo" />
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -167,6 +161,13 @@ const MainToolbarContent = ({
 
       <ToolbarGroup>
         <ImageUploadButton text="Add" />
+      </ToolbarGroup>
+
+      <Spacer />
+
+      {isMobile && <ToolbarSeparator />}
+
+      <ToolbarGroup>
         <SearchAndReplaceButton
           ref={searchAndReplaceButtonRef}
           aria-expanded={isSearchAndReplaceOpen}
@@ -174,13 +175,7 @@ const MainToolbarContent = ({
           onClick={onSearchAndReplaceClick}
         />
       </ToolbarGroup>
-
-      <Spacer />
-
-      {isMobile && <ToolbarSeparator />}
-
-      <ToolbarGroup></ToolbarGroup>
-    </div>
+    </>
   );
 };
 
@@ -213,14 +208,8 @@ const MobileToolbarContent = ({
   </>
 );
 
-export function SimpleEditor() {
-  const params = useParams();
-  const documentId = params.documentId as string | undefined;
-  const document = useQuery(
-    api.document.getById,
-    documentId ? { id: documentId as any } : "skip",
-  );
-
+export default function SimpleEditor() {
+  const Threads = dynamic(() => import("@/app/document/[documentId]/Threads"),{ssr:false});
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -229,7 +218,6 @@ export function SimpleEditor() {
   const [isSearchAndReplaceOpen, setIsSearchAndReplaceOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const searchAndReplaceButtonRef = useRef<HTMLButtonElement>(null);
-
   const liveblocks = useLiveblocksExtension();
 
   const editor = useEditor({
@@ -249,7 +237,7 @@ export function SimpleEditor() {
         horizontalRule: false,
         undoRedo: false,
         link: {
-          openOnClick: true,
+          openOnClick: false,
           enableClickSelection: true,
         },
       }),
@@ -275,6 +263,7 @@ export function SimpleEditor() {
         onError: (error) => console.error("Upload failed:", error),
       }),
     ],
+    content,
   });
 
   const rect = useCursorVisibility({
@@ -287,17 +276,6 @@ export function SimpleEditor() {
       setMobileView("main");
     }
   }, [isMobile, mobileView]);
-
-  useEffect(() => {
-    if (!editor || !document?.initialContent) {
-      return;
-    }
-
-    const current = editor.getHTML();
-    if (!current || current === "<p></p>") {
-      editor.commands.setContent(document.initialContent, { emitUpdate: false });
-    }
-  }, [editor, document?.initialContent]);
 
   const openSearchAndReplace = useCallback(() => {
     setMobileView("main");
@@ -361,10 +339,9 @@ export function SimpleEditor() {
           role="presentation"
           className="simple-editor-content"
         />
-        <Threads editor={editor} />
-        <FloatingToolbar editor={editor} />
-        <FloatingComposer editor={editor} className="floating-composer" />
       </EditorContext.Provider>
+      <Threads editor={editor} />
+      <FloatingToolbar editor={editor} />
     </div>
   );
 }
