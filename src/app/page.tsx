@@ -1,12 +1,13 @@
 
 
-import { ArrowUpRight, Clock3, FilePlus2 } from "lucide-react";
+
 import Header from "@/components/Header";
 import { TemplateGallery } from "@/components/Home/Templates";
 import { RecentFilesTable } from "@/components/Home/Documents";
-import { Button } from "@/components/ui/button";
+
 import HomeHeader from "@/components/Home/HomeHeader";
 import Hero from "@/components/Home/Hero";
+import HeroCreateDocumentButton from "@/components/Home/HeroCreateDocumentButton";
 
 
 export default function Page() {
@@ -26,10 +27,7 @@ export default function Page() {
                   place.
                 </p>
               </div>
-              <Button className="w-fit gap-2 rounded-[28px] bg-foreground px-5 text-background hover:bg-foreground/90">
-                <FilePlus2 data-icon="inline-start" /> New document{" "}
-                <ArrowUpRight data-icon="inline-end" />
-              </Button>
+             <HeroCreateDocumentButton/>
             </div>
           </div>
         </section>
