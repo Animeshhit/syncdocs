@@ -79,11 +79,12 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 import content from "@/components/tiptap-templates/simple/data/content.json";
 import {
+  FloatingComposer,
   FloatingToolbar,
   useLiveblocksExtension,
 } from "@liveblocks/react-tiptap";
 import dynamic from "next/dynamic";
-
+import Threads from "@/app/document/[documentId]/Threads";
 
 const SEARCH_AND_REPLACE_SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: "center",
@@ -209,7 +210,7 @@ const MobileToolbarContent = ({
 );
 
 export default function SimpleEditor() {
-  const Threads = dynamic(() => import("@/app/document/[documentId]/Threads"),{ssr:false});
+ 
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -262,7 +263,7 @@ export default function SimpleEditor() {
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
-    ]
+    ],
   });
 
   const rect = useCursorVisibility({
@@ -338,9 +339,14 @@ export default function SimpleEditor() {
           role="presentation"
           className="simple-editor-content"
         />
+        <Threads editor={editor} />
+        <FloatingToolbar
+          editor={editor}
+          position={isMobile ? "bottom" : "top"}
+          offset={isMobile ? 12 : 6}
+        />
+        <FloatingComposer editor={editor} />
       </EditorContext.Provider>
-      <Threads editor={editor} />
-      <FloatingToolbar editor={editor} />
     </div>
   );
 }

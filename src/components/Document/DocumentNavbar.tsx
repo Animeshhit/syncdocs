@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
 import DocumentFileNameSetter from "./DocumentFileNameSetter";
-import { AvatarRtl } from "./Avatar";
+
 import { FileMenu } from "./FileMenu";
 
 interface DocumentNavbarProps {
@@ -42,7 +42,7 @@ function DocumentNavbar({ documentId }: DocumentNavbarProps) {
           </div>
 
           <div className="flex items-center justify-end gap-2 self-end sm:self-auto">
-            <AvatarRtl />
+            
             <div className="hidden md:block">
               <OrganizationSwitcher
                 afterLeaveOrganizationUrl="/"

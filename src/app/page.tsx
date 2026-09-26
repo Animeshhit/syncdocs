@@ -8,7 +8,6 @@ import HomeHeader from "@/components/Home/HomeHeader";
 import Hero from "@/components/Home/Hero";
 import HeroCreateDocumentButton from "@/components/Home/HeroCreateDocumentButton";
 import RecentFilesAuthLayout from "@/components/Home/RecentFilesAuthLayout";
-import { RecentFilesTable } from "@/components/Home/RecentFiles";
 
 
 export default function Page() {

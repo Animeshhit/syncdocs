@@ -9,10 +9,12 @@ import {
 import { useParams } from "next/navigation";
 import FullScreenLoading from "@/components/FullScreenLoading";
 import { getUsers } from "@/app/actions/userActions";
-import Header from "@/components/Header";
+
 import HomeHeader from "@/components/Home/HomeHeader";
+import dynamic from "next/dynamic";
 
 export function Room({ children }: { children: ReactNode }) {
+  const Header = dynamic(() => import("@/components/Header"),{ssr:false});
   const params = useParams();
 
   const [users, setUsers] = useState<
@@ -61,9 +63,10 @@ export function Room({ children }: { children: ReactNode }) {
       resolveMentionSuggestions={resolveMentionSuggestions}
     >
       <RoomProvider id={params.documentId as string}>
-         <Header>
-          <HomeHeader/> 
+        <Header>
+          <HomeHeader />
         </Header>
+
         <ClientSideSuspense fallback={<FullScreenLoading />}>
           {children}
         </ClientSideSuspense>
