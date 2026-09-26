@@ -3,7 +3,6 @@ import React from "react";
 import {
   OrganizationSwitcher,
   SignInButton,
-  UserButton,
   useUser,
 } from "@clerk/nextjs";
 import { Skeleton } from "./ui/skeleton";
@@ -22,18 +21,18 @@ function AuthHeader() {
       ) : (
         <>
           {" "}
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block"> */}
             <OrganizationSwitcher
               afterLeaveOrganizationUrl="/"
               afterSelectOrganizationUrl="/"
               afterSelectPersonalUrl="/"
               afterCreateOrganizationUrl="/"
             />
-          </div>
+          {/* </div> */}
         </>
       )}
 
-      <UserButton />
+      {/* <UserButton /> */}
     </>
   );
 }

@@ -9,19 +9,29 @@ const getStringId = (value: unknown): string | undefined => {
   return String(value);
 };
 
+const getOrganizationId = (user: any): string | undefined => {
+  if (!user) return undefined;
+
+  const fromOrgId = getStringId(user?.org_id);
+  if (fromOrgId) return fromOrgId;
+
+  if (typeof user?.o === "object" && user.o !== null && "id" in user.o) {
+    return getStringId((user.o as { id?: unknown }).id);
+  }
+
+  return undefined;
+};
+
 export const get = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
-      throw new ConvexError("unauthorized");
+      throw new ConvexError("Unauthorized! You need to sign in. 🤔");
     }
 
-    const orgId =
-      typeof user.o === "object" && user.o !== null && "id" in user.o
-        ? getStringId((user.o as { id?: unknown }).id)
-        : undefined;
+    const orgId = getOrganizationId(user);
 
     if (orgId) {
       return await ctx.db
@@ -45,13 +55,10 @@ export const create = mutation({
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
-        throw new ConvexError("Unauthorized! You need to sign in. 🤔");
+      throw new ConvexError("Unauthorized! You need to sign in. 🤔");
     }
 
-    const orgId =
-      (typeof user.o === "object" && user.o !== null && "id" in user.o
-        ? getStringId((user.o as { id?: unknown }).id)
-        : undefined) ?? getStringId(user.org_id);
+    const orgId = getOrganizationId(user);
 
     return await ctx.db.insert("documents", {
       title: args.title ?? "Untitled document",

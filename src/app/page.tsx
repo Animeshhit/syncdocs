@@ -3,11 +3,12 @@
 
 import Header from "@/components/Header";
 import { TemplateGallery } from "@/components/Home/Templates";
-import { RecentFilesTable } from "@/components/Home/Documents";
 
 import HomeHeader from "@/components/Home/HomeHeader";
 import Hero from "@/components/Home/Hero";
 import HeroCreateDocumentButton from "@/components/Home/HeroCreateDocumentButton";
+import RecentFilesAuthLayout from "@/components/Home/RecentFilesAuthLayout";
+import { RecentFilesTable } from "@/components/Home/RecentFiles";
 
 
 export default function Page() {
@@ -32,7 +33,7 @@ export default function Page() {
           </div>
         </section>
         <TemplateGallery />
-        <RecentFilesTable />
+        <RecentFilesAuthLayout />
       </main>
     </div>
   );

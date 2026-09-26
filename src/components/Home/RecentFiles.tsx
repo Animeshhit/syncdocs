@@ -4,8 +4,7 @@ import { useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { useRef, useState } from "react";
-import { useUser, SignInButton } from "@clerk/nextjs";
-import Link from "next/link";
+import { useAuth, useUser, SignInButton } from "@clerk/nextjs";
 import {
   Building2,
   FileText,
@@ -43,13 +42,16 @@ type DocType = {
 };
 
 export function RecentFilesTable() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded: userIsLoaded, isSignedIn } = useUser();
+  const { isLoaded: authIsLoaded } = useAuth();
 
-  // Gate the query itself behind auth so we never fire it while signed out
+  const shouldLoadDocuments =
+    userIsLoaded && authIsLoaded && isSignedIn === true;
+
   const { results, status, loadMore } = usePaginatedQuery(
     api.document.get,
-    isSignedIn ? {} : "skip",
-    { initialNumItems: 5 }
+    shouldLoadDocuments ? {} : "skip",
+    { initialNumItems: 5 },
   );
 
   const deleteItem = useMutation(api.document.deleteById);
@@ -82,9 +84,10 @@ export function RecentFilesTable() {
   const handleOpenInNewTab = (id: string) =>
     window.open(`/document/${id}`, "_blank");
 
-  const authChecking = !isLoaded;
-  const isLoading = isSignedIn && results === undefined;
-  const noDocumentsFound = isSignedIn && results && results.length === 0;
+  const authChecking = !userIsLoaded || !authIsLoaded;
+  const isLoading = shouldLoadDocuments && results === undefined;
+  const noDocumentsFound =
+    shouldLoadDocuments && results && results.length === 0;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
@@ -119,7 +122,9 @@ export function RecentFilesTable() {
                 </p>
               </div>
               <SignInButton mode="modal">
-                <Button size="sm" className="cursor-pointer">Sign in</Button>
+                <Button size="sm" className="cursor-pointer">
+                  Sign in
+                </Button>
               </SignInButton>
             </div>
           )}
@@ -128,7 +133,10 @@ export function RecentFilesTable() {
           {authChecking && (
             <div className="divide-y divide-border">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-4 sm:px-6">
+                <div
+                  key={i}
+                  className="flex items-center gap-3 px-5 py-4 sm:px-6"
+                >
                   <Skeleton className="size-9 bg-gray-400 animate-pulse rounded-lg" />
                   <Skeleton className="h-4 w-40 bg-gray-400 animate-pulse rounded" />
                 </div>
@@ -169,7 +177,10 @@ export function RecentFilesTable() {
 
                 {!isLoading && noDocumentsFound && (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
+                    <TableCell
+                      colSpan={4}
+                      className="py-10 text-center text-sm text-muted-foreground"
+                    >
                       No documents found.
                     </TableCell>
                   </TableRow>
@@ -182,7 +193,13 @@ export function RecentFilesTable() {
 
                     return (
                       <TableRow key={doc._id} className="group cursor-pointer">
-                        <TableCell className="py-4 pl-5 sm:pl-6" onClick={() => !isEditing && (window.location.href = `/document/${doc._id}`)}>
+                        <TableCell
+                          className="py-4 pl-5 sm:pl-6"
+                          onClick={() =>
+                            !isEditing &&
+                            (window.location.href = `/document/${doc._id}`)
+                          }
+                        >
                           <div className="flex items-center gap-3">
                             <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
                               <FileText className="size-4" />
@@ -208,7 +225,9 @@ export function RecentFilesTable() {
                                   className="w-full bg-background border border-input rounded px-1.5 py-0.5 text-sm outline-none focus:ring-2 focus:ring-ring"
                                 />
                               ) : (
-                                <p className="truncate font-medium">{doc.title}</p>
+                                <p className="truncate font-medium">
+                                  {doc.title}
+                                </p>
                               )}
                               <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground sm:hidden">
                                 <span className="inline-flex items-center gap-1">
@@ -216,13 +235,18 @@ export function RecentFilesTable() {
                                   {isOrganization ? "Organization" : "me"}
                                 </span>
                                 <span>·</span>
-                                <span>{format(doc._creationTime, "MMM d, yyyy")}</span>
+                                <span>
+                                  {format(doc._creationTime, "MMM d, yyyy")}
+                                </span>
                               </div>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="hidden text-muted-foreground sm:table-cell">
-                          <Badge variant="secondary" className="gap-1 font-normal">
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 font-normal"
+                          >
                             <Building2 className="size-3" />
                             {isOrganization ? "Organization" : "me"}
                           </Badge>
@@ -230,17 +254,32 @@ export function RecentFilesTable() {
                         <TableCell className="hidden text-muted-foreground sm:table-cell">
                           {format(doc._creationTime, "MMM d, yyyy")}
                         </TableCell>
-                        <TableCell className="pr-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        <TableCell
+                          className="pr-3 text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <DropdownMenu>
-                            <DropdownMenuTrigger className="cursor-pointer" aria-label={`More options for ${doc.title}`}> 
-                                <MoreHorizontal />
+                            <DropdownMenuTrigger
+                              className="cursor-pointer"
+                              aria-label={`More options for ${doc.title}`}
+                            >
+                              <MoreHorizontal />
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-sm">
-                              <DropdownMenuItem className="cursor-pointer py-2" onClick={() => startRename(doc)}>
+                            <DropdownMenuContent
+                              align="end"
+                              className="w-48 rounded-sm"
+                            >
+                              <DropdownMenuItem
+                                className="cursor-pointer py-2"
+                                onClick={() => startRename(doc)}
+                              >
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Rename
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer py-2" onClick={() => handleOpenInNewTab(doc._id)}>
+                              <DropdownMenuItem
+                                className="cursor-pointer py-2"
+                                onClick={() => handleOpenInNewTab(doc._id)}
+                              >
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Open in new tab
                               </DropdownMenuItem>

@@ -47,7 +47,7 @@ function HeroCreateDocumentButton() {
     <Button
       onClick={createDocument}
       disabled={isLoading}
-      className="w-fit gap-2 rounded-[28px] bg-foreground px-5 text-background hover:bg-foreground/90"
+      className="w-fit gap-2 cursor-pointer rounded-[28px] bg-foreground px-5 text-background hover:bg-foreground/90"
     >
       {isLoading ? (
         <div className="flex items-center gap-2">
