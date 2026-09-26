@@ -13,26 +13,27 @@ function AuthHeader() {
   return (
     <>
       {!isLoaded ? (
-        <Skeleton className="bg-gray-400 w-6 h-6 animate-pulse"/>
+        <Skeleton className="bg-gray-400 w-6 h-6 animate-pulse" />
       ) : !isSignedIn ? (
-         <SignInButton mode="modal">
-                <Button size="sm" variant="ghost" className="cursor-pointer">Sign in</Button>
-              </SignInButton>
+        <SignInButton mode="modal">
+          <Button size="sm" variant="ghost" className="cursor-pointer">
+            Sign in
+          </Button>
+        </SignInButton>
       ) : (
         <>
           {" "}
-          {/* <div className="hidden md:block"> */}
+          <div className="hidden md:block">
             <OrganizationSwitcher
               afterLeaveOrganizationUrl="/"
               afterSelectOrganizationUrl="/"
               afterSelectPersonalUrl="/"
               afterCreateOrganizationUrl="/"
             />
-          {/* </div> */}
+            {/* <UserButton /> */}
+          </div>
         </>
       )}
-
-      {/* <UserButton /> */}
     </>
   );
 }
