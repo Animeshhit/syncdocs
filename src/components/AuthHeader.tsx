@@ -3,6 +3,7 @@ import React from "react";
 import {
   OrganizationSwitcher,
   SignInButton,
+  UserButton,
   useUser,
 } from "@clerk/nextjs";
 import { Skeleton } from "./ui/skeleton";
@@ -30,7 +31,7 @@ function AuthHeader() {
               afterSelectPersonalUrl="/"
               afterCreateOrganizationUrl="/"
             />
-            {/* <UserButton /> */}
+            <UserButton />
           </div>
         </>
       )}
