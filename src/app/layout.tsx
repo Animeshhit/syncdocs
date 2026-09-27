@@ -7,6 +7,8 @@ import "@liveblocks/react-ui/styles.css";
 
 import "@liveblocks/react-tiptap/styles.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import NextTopLoader from 'nextjs-toploader';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.className}  h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+           <NextTopLoader />
         <ThemeProvider>
           <AuthProvider>
             <ConvexClientProvider>
