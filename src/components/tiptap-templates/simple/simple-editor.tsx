@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
@@ -77,14 +78,14 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
-import content from "@/components/tiptap-templates/simple/data/content.json";
 import {
   FloatingComposer,
   FloatingToolbar,
   useLiveblocksExtension,
 } from "@liveblocks/react-tiptap";
-import dynamic from "next/dynamic";
+import { useMutation, useQuery } from "convex/react";
 import Threads from "@/app/document/[documentId]/Threads";
+import { api } from "../../../../convex/_generated/api";
 
 const SEARCH_AND_REPLACE_SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: "center",
@@ -210,7 +211,14 @@ const MobileToolbarContent = ({
 );
 
 export default function SimpleEditor() {
- 
+  const params = useParams();
+  const documentId = params.documentId as string | undefined;
+  const document = useQuery(
+    api.document.getById,
+    documentId ? { id: documentId as any } : "skip",
+  );
+  const updateDocument = useMutation(api.document.updateById);
+
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -219,10 +227,22 @@ export default function SimpleEditor() {
   const [isSearchAndReplaceOpen, setIsSearchAndReplaceOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const searchAndReplaceButtonRef = useRef<HTMLButtonElement>(null);
+  const isHydrated = useRef(false);
   const liveblocks = useLiveblocksExtension();
 
   const editor = useEditor({
     immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      if (!documentId || !isHydrated.current) {
+        return;
+      }
+
+      const rawHtml = editor.getHTML();
+      void updateDocument({
+        id: documentId as any,
+        initialContent: rawHtml,
+      });
+    },
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -265,6 +285,16 @@ export default function SimpleEditor() {
       }),
     ],
   });
+
+  useEffect(() => {
+    if (!editor || !document || isHydrated.current) {
+      return;
+    }
+
+    const incomingHtml = document.initialContent ?? "";
+    editor.commands.setContent(incomingHtml, { emitUpdate: false });
+    isHydrated.current = true;
+  }, [document, editor]);
 
   const rect = useCursorVisibility({
     editor,

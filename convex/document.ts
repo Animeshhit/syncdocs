@@ -90,12 +90,31 @@ export const deleteById = mutation({
 });
 
 export const updateById = mutation({
-  args: { id: v.id("documents"), title: v.string() },
+  args: {
+    id: v.id("documents"),
+    title: v.optional(v.string()),
+    initialContent: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const document = ctx.db.get("documents", args.id);
+    const document = await ctx.db.get(args.id);
     if (!document) {
-      return new ConvexError("Document not found");
+      throw new ConvexError("Document not found");
     }
-    return ctx.db.patch("documents", args.id, { title: args.title });
+
+    const patch: { title?: string; initialContent?: string } = {};
+
+    if (args.title !== undefined) {
+      patch.title = args.title;
+    }
+
+    if (args.initialContent !== undefined) {
+      patch.initialContent = args.initialContent;
+    }
+
+    if (Object.keys(patch).length === 0) {
+      return document;
+    }
+
+    return await ctx.db.patch(args.id, patch);
   },
 });
